@@ -87,10 +87,11 @@ const obstacles=[],enemies=[],keys={};
 const clock=new THREE.Clock();
 const raycaster=new THREE.Raycaster();
 
-let playing=false,paused=false,hp=100,maxHp=100,ammo=30,magSize=30,kills=0,gameOver=false;
+let playing=false,paused=false,hp=100,maxHp=100,ammo=30,magSize=30,reserveAmmo=120,maxReserveAmmo=180,kills=0,gameOver=false;
 let yaw=0,pitch=0,zoneRadius=90,elapsed=0,nextShrink=30;
 let cooldown=0,reloading=false,reloadTime=0;
-let shake=0;
+let shake=0,mouseDown=false;
+const pickups=[];
 
 /* ================= WORLD BUILDERS ================= */
 function makeBox(w,h,d,color,x,y,z){
@@ -327,6 +328,44 @@ for(let i=0;i<11;i++){
   carBlock.visible=false;carBlock.userData={w:alongX?4.5:2.5,d:alongX?2.5:4.5};obstacles.push(carBlock);
 }
 
+// Supply crates add a reason to explore the blocks between fights.
+const supplyMaterials={
+  ammo:new THREE.MeshStandardMaterial({color:0x6c7153,roughness:.82,metalness:.12,emissive:0x2a260c,emissiveIntensity:.28}),
+  health:new THREE.MeshStandardMaterial({color:0x567b61,roughness:.8,metalness:.08,emissive:0x12351c,emissiveIntensity:.35})
+};
+const supplyBand=new THREE.MeshStandardMaterial({color:0xd7a63d,metalness:.25,roughness:.5,emissive:0x5b3b0c,emissiveIntensity:.2});
+const supplyCross=new THREE.MeshStandardMaterial({color:0xe8f3e5,emissive:0x406d47,emissiveIntensity:.25});
+for(let i=0;i<12;i++){
+  const type=i%3===0?"health":"ammo";
+  let x,z,attempts=0;
+  do{x=(Math.random()-.5)*200;z=(Math.random()-.5)*200;attempts++;}
+  while(attempts<300&&(Math.hypot(x,z)<16||
+    roadCoords.some(lane=>Math.min(Math.abs(x-lane),Math.abs(z-lane))<6)||
+    blocked(new THREE.Vector3(x,0,z),1.5)));
+  if(attempts>=300)continue;
+  const group=new THREE.Group();
+  const crate=new THREE.Mesh(new THREE.BoxGeometry(.72,.52,.68),supplyMaterials[type]);
+  crate.position.y=.4;crate.castShadow=true;crate.receiveShadow=true;group.add(crate);
+  const band=new THREE.Mesh(new THREE.BoxGeometry(.13,.55,.7),type==="health"?supplyCross:supplyBand);
+  band.position.set(0,.4,0);band.castShadow=true;group.add(band);
+  if(type==="health"){
+    const crossBar=new THREE.Mesh(new THREE.BoxGeometry(.42,.13,.72),supplyCross);
+    crossBar.position.y=.4;group.add(crossBar);
+  }
+  const beacon=new THREE.Mesh(
+    new THREE.CylinderGeometry(.04,.22,1.8,8,1,true),
+    new THREE.MeshBasicMaterial({color:type==="health"?0x55ef8a:0xffd166,transparent:true,opacity:.14,depthWrite:false})
+  );
+  beacon.position.y=1.45;group.add(beacon);
+  const halo=new THREE.Mesh(
+    new THREE.RingGeometry(.55,.68,24),
+    new THREE.MeshBasicMaterial({color:type==="health"?0x55ef8a:0xffd166,transparent:true,opacity:.8,side:THREE.DoubleSide})
+  );
+  halo.rotation.x=-Math.PI/2;halo.position.y=.045;group.add(halo);
+  group.position.set(x,0,z);scene.add(group);
+  pickups.push({type,group,phase:Math.random()*Math.PI*2,collected:false});
+}
+
 // Enemies
 for(let i=0;i<12;i++){
   const bot=character(0xd63b36);
@@ -378,6 +417,15 @@ function killFeed(text){
   setTimeout(()=>{el.style.opacity=0;setTimeout(()=>el.remove(),500);},2600);
 }
 
+let messageTimer=0;
+function showMessage(message){
+  const toast=$("toast");
+  toast.textContent=message;
+  toast.classList.add("is-visible");
+  clearTimeout(messageTimer);
+  messageTimer=setTimeout(()=>toast.classList.remove("is-visible"),1800);
+}
+
 function flashDamage(){
   const d=document.getElementById("dmg");
   d.style.opacity=.9;setTimeout(()=>d.style.opacity=0,180);
@@ -387,14 +435,19 @@ function flashDamage(){
 const $=id=>document.getElementById(id);
 function updateHUD(){
   $("hp").textContent=Math.ceil(Math.max(0,hp));
-  $("ammo").textContent=reloading?"…":ammo+"/"+magSize;
+  $("ammo").textContent=reloading?"RELOADING":ammo+"/"+reserveAmmo;
+  $("ammoLarge").textContent=String(ammo).padStart(2,"0");
+  $("ammoReserve").textContent=String(reserveAmmo).padStart(3,"0");
+  $("weaponStatus").textContent=reloading?"RELOADING":ammo<=6?"LOW AMMO":"ASSAULT RIFLE";
+  $("weaponHud").classList.toggle("is-low",ammo<=6&&!reloading);
   $("kills").textContent=kills;
   $("left").textContent=enemies.filter(e=>e.alive).length;
   $("zone").textContent=Math.ceil(zoneRadius)+"m";
   $("zoneR").textContent=Math.ceil(zoneRadius);
   $("hpBar").firstElementChild.style.width=Math.max(0,hp/maxHp*100)+"%";
-  $("ammoBar").firstElementChild.style.width=(reloading?0:ammo/magSize*100)+"%";
+  $("ammoBar").firstElementChild.style.width=ammo/magSize*100+"%";
   $("weaponMeter").style.width=(reloading?0:ammo/magSize*100)+"%";
+  $("hpBar").classList.toggle("is-low",hp<=30);
 }
 
 function resetGame(){
@@ -403,35 +456,38 @@ function resetGame(){
     let p;do{p=new THREE.Vector3((Math.random()-.5)*125,0,(Math.random()-.5)*125);}while(Math.hypot(p.x,p.z)<18||blocked(p));
     e.mesh.position.copy(p);
   }
-  hp=100;ammo=magSize;kills=0;elapsed=0;nextShrink=30;zoneRadius=90;
+  for(const pickup of pickups){pickup.collected=false;pickup.group.visible=true;if(!pickup.group.parent)scene.add(pickup.group);}
+  hp=100;ammo=magSize;reserveAmmo=120;kills=0;elapsed=0;nextShrink=30;zoneRadius=90;mouseDown=false;
   player.position.set(0,0,0);
   yaw=0;pitch=0;cooldown=0;reloading=false;gameOver=false;
   $("feed").innerHTML="";
+  $("toast").classList.remove("is-visible");
   updateHUD();
 }
 
 function endGame(win){
   if(gameOver)return;
-  gameOver=true;playing=false;
+  gameOver=true;playing=false;mouseDown=false;
   if(document.pointerLockElement)document.exitPointerLock();
   const panel=document.querySelector(".panel");
   panel.innerHTML=
-    `<h1>${win?"🏆 #1 VICTORY!":"💀 ELIMINATED"}</h1>
-    <p class="sub">${win?"WINNER WINNER CHICKEN DINNER!":"BETTER LUCK NEXT DROP"}</p>
+    `<div class="panel__eyebrow"><span class="live-dot">MATCH COMPLETE</span><span>AFTER ACTION REPORT</span></div>
+    <h1>${win?"VICTORY":"ELIMINATED"}</h1>
+    <p class="sub">${win?"You are the last operator standing.":"Regroup, rearm, and redeploy."}</p>
     <div id="resultStats">
-      <div><b>${kills}</b>KILLS</div>
-      <div><b>${win?1:Math.ceil(enemies.filter(e=>e.alive).length)}</b>${win?"PLACE":"REMAINING"}</div>
+      <div><b>${kills}</b>ELIMINATIONS</div>
+      <div><b>${win?1:Math.ceil(enemies.filter(e=>e.alive).length)}</b>${win?"PLACE":"HOSTILES LEFT"}</div>
       <div><b>${Math.floor(elapsed)}s</b>SURVIVED</div>
     </div>
-    <button id="again">PLAY AGAIN</button>`;
+    <button id="again">REDEPLOY</button>`;
   $("screen").style.display="flex";
   $("again").onclick=startGame;
   tone(win?523:220,win?.5:.4,.15,"triangle",win?400:-100);
 }
 
 function reload(){
-  if(!playing||paused||reloading||ammo===magSize)return;
-  reloading=true;reloadTime=1.5;
+  if(!playing||paused||reloading||ammo===magSize||reserveAmmo<=0)return;
+  mouseDown=false;reloading=true;reloadTime=1.35;
   sfx.reload();updateHUD();
 }
 
@@ -459,7 +515,7 @@ function shoot(){
       if(enemy.hp<=0){
         enemy.alive=false;scene.remove(enemy.mesh);
         kills++;sfx.kill();
-        killFeed(`💀 Enemy eliminated · ${kills}/${enemies.length}`);
+        killFeed(`HOSTILE ELIMINATED / ${kills} OF ${enemies.length}`);
         if(kills===enemies.length)endGame(true);
       }
     }
@@ -486,6 +542,13 @@ document.addEventListener("keydown",e=>{
   if(e.code==="Escape"&&playing){paused=!paused;$("pausedTag").style.display=paused?"flex":"none";}
 });
 document.addEventListener("keyup",e=>keys[e.code]=false);
+document.addEventListener("pointerlockchange",()=>{
+  if(!playing)return;
+  const hasLock=document.pointerLockElement===renderer.domElement;
+  if(!hasLock)mouseDown=false;
+  if(!hasLock&&document.activeElement!==$("start"))paused=true;
+  $("pausedTag").style.display=paused?"flex":"none";
+});
 
 document.addEventListener("mousemove",e=>{
   if(!playing||paused||document.pointerLockElement!==renderer.domElement)return;
@@ -499,8 +562,11 @@ document.addEventListener("mousedown",e=>{
     renderer.domElement.requestPointerLock?.();paused=false;$("pausedTag").style.display="none";
     return;
   }
+  mouseDown=true;
   shoot();
 });
+document.addEventListener("mouseup",e=>{if(e.button===0)mouseDown=false;});
+window.addEventListener("blur",()=>{mouseDown=false;});
 
 /* ================= MINIMAP ================= */
 const mm=$("minimap").getContext("2d");
@@ -518,6 +584,12 @@ function drawMinimap(){
     mm.fillRect(x-1.5,y-1.5,3,3);
   }
   // enemies
+  for(const pickup of pickups){
+    if(pickup.collected)continue;
+    const [x,y]=toMap(pickup.group.position.x,pickup.group.position.z);
+    mm.fillStyle=pickup.type==="health"?"#5df08a":"#ffd166";
+    mm.fillRect(x-2,y-2,4,4);
+  }
   mm.fillStyle="#ff5252";
   for(const e of enemies){
     if(!e.alive)continue;
@@ -539,20 +611,25 @@ function update(dt){
 
   elapsed+=dt;
   cooldown=Math.max(0,cooldown-dt);
+  if(mouseDown&&cooldown<=0)shoot();
   flash.material.opacity=Math.max(0,flash.material.opacity-dt*18);
   if(player.userData.weaponPivot)player.userData.weaponPivot.rotation.x=THREE.MathUtils.lerp(player.userData.weaponPivot.rotation.x,0,dt*12);
   shake=Math.max(0,shake-dt*.4);
 
   if(reloading){
     reloadTime-=dt;
-    if(reloadTime<=0){reloading=false;ammo=magSize;}
+    if(reloadTime<=0){
+      const loaded=Math.min(magSize-ammo,reserveAmmo);
+      ammo+=loaded;reserveAmmo-=loaded;reloading=false;
+      showMessage(`RELOADED  +${loaded}`);
+    }
     updateHUD();
   }
 
   // Zone shrink schedule
   const remain=Math.max(0,30-elapsed);
   $("zoneTimer").textContent=remain>0?Math.ceil(remain)+"s":"SHRINKING";
-  zoneRadius=Math.max(12,90-elapsed*.28);
+  zoneRadius=Math.max(12,90-Math.max(0,elapsed-30)*.28);
   zoneWall.scale.set(zoneRadius,1,zoneRadius);
   zoneLine.scale.set(zoneRadius,1,zoneRadius);
 
@@ -573,6 +650,12 @@ function update(dt){
     next.x=THREE.MathUtils.clamp(next.x,-110,110);
     next.z=THREE.MathUtils.clamp(next.z,-110,110);
     if(!blocked(next))player.position.copy(next);
+  }
+  const sprinting=(keys.ShiftLeft||keys.ShiftRight)&&move.lengthSq()>0;
+  const targetFov=sprinting?76:70;
+  if(Math.abs(camera.fov-targetFov)>.1){
+    camera.fov=THREE.MathUtils.lerp(camera.fov,targetFov,dt*4);
+    camera.updateProjectionMatrix();
   }
   player.rotation.y=yaw;
 
@@ -600,6 +683,23 @@ function update(dt){
     if(tracers[i].life<=0){scene.remove(tracers[i].m);tracers.splice(i,1);}
   }
 
+  // Pick up nearby ammunition and medical supplies.
+  for(const pickup of pickups){
+    if(pickup.collected)continue;
+    pickup.group.rotation.y+=dt*.45;
+    pickup.group.position.y=.08+Math.sin(elapsed*2.4+pickup.phase)*.08;
+    const distance=player.position.distanceTo(new THREE.Vector3(pickup.group.position.x,0,pickup.group.position.z));
+    if(distance>2.4)continue;
+    if(pickup.type==="health"&&hp>=maxHp)continue;
+    if(pickup.type==="ammo"&&reserveAmmo>=maxReserveAmmo)continue;
+    if(pickup.type==="health"){
+      const restored=Math.min(35,maxHp-hp);hp+=restored;showMessage(`MEDKIT  +${Math.ceil(restored)} HEALTH`);
+    }else{
+      const added=Math.min(45,maxReserveAmmo-reserveAmmo);reserveAmmo+=added;showMessage(`AMMO  +${added}`);
+    }
+    pickup.collected=true;pickup.group.visible=false;scene.remove(pickup.group);updateHUD();
+  }
+
   // Enemy AI
   let zoneHitPlayer=false;
   for(const e of enemies){
@@ -613,7 +713,7 @@ function update(dt){
       e.hp-=8*dt;
       if(e.hp<=0){
         e.alive=false;scene.remove(e.mesh);
-        killFeed("☠️ Enemy died to the zone");
+        killFeed("HOSTILE LOST TO THE ZONE");
         if(kills===enemies.length)endGame(true);
         continue;
       }

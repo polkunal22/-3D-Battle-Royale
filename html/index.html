@@ -11,11 +11,11 @@
  <body>
   <div id="hud">
    <div class="lo">
-    Player
+    OPERATOR STATUS
    </div>
    <div class="stat">
     <span>
-     ❤️ Health
+     Health
     </span>
     <span class="val hp-val" id="hp">
      100
@@ -27,7 +27,7 @@
    </div>
    <div class="stat">
     <span>
-     🔫 Ammo
+     Ammo
     </span>
     <span class="val" id="ammo">
      30/30
@@ -39,7 +39,7 @@
    </div>
    <div class="stat">
     <span>
-     🎯 Kills
+     Eliminations
     </span>
     <span class="val" id="kills">
      0
@@ -47,7 +47,7 @@
    </div>
    <div class="stat">
     <span>
-     👥 Enemies
+     Hostiles
     </span>
     <span class="val" id="left">
      12
@@ -55,7 +55,7 @@
    </div>
    <div class="stat">
     <span>
-     🌀 Zone
+     Safe zone
     </span>
     <span class="val" id="zone">
      90m
@@ -63,11 +63,11 @@
    </div>
   </div>
   <div id="zoneInfo">
-   ZONE SHRINKS IN
+   SAFE ZONE / SHRINK IN
    <span id="zoneTimer">
     --
    </span>
-   · RADIUS
+   / RADIUS
    <b id="zoneR">
     90
    </b>
@@ -75,16 +75,43 @@
   </div>
   <canvas height="160" id="minimap" width="160">
   </canvas>
-  <div id="weaponHud" aria-label="Weapon and ammunition">
+  <div aria-label="Weapon and ammunition" id="weaponHud">
    <div class="weaponHud__top">
-    <span class="weaponHud__label" id="weaponStatus">ASSAULT RIFLE</span>
-    <span class="weaponHud__key">R <span>RELOAD</span></span>
+    <span class="weaponHud__label" id="weaponStatus">
+     ASSAULT RIFLE
+    </span>
+    <span class="weaponHud__key">
+     R
+     <span>
+      RELOAD
+     </span>
+    </span>
    </div>
    <div class="weaponHud__bottom">
-    <div class="weaponHud__icon" aria-hidden="true"><svg viewBox="0 0 48 32" focusable="false"><path d="M5 10h22l5 3h10v5H31l-5 4h-6v-4h-5v4H9v-7H5z"/></svg></div>
-    <div class="weaponHud__ammo"><strong id="ammoLarge">30</strong><span>/ <b id="ammoReserve">30</b></span></div>
+    <div aria-hidden="true" class="weaponHud__icon">
+     <svg focusable="false" viewbox="0 0 48 32">
+      <path d="M5 10h22l5 3h10v5H31l-5 4h-6v-4h-5v4H9v-7H5z">
+      </path>
+     </svg>
+    </div>
+    <div class="weaponHud__ammo">
+     <strong id="ammoLarge">
+      30
+     </strong>
+     <span>
+      /
+      <b id="ammoReserve">
+       30
+      </b>
+     </span>
+    </div>
    </div>
-   <div class="weaponHud__meter"><span id="weaponMeter"></span></div>
+   <div class="weaponHud__meter">
+    <span id="weaponMeter">
+    </span>
+   </div>
+  </div>
+  <div aria-live="polite" id="toast" role="status">
   </div>
   <div id="feed">
   </div>
@@ -105,38 +132,75 @@
    <div class="dot">
    </div>
    <div id="hitmark">
-    ✕
+    X
    </div>
   </div>
   <div id="screen">
    <div class="panel">
+    <div class="panel__eyebrow">
+     <span class="live-dot">
+      LIVE DROP
+     </span>
+     <span>
+      SOLO / 12 HOSTILES
+     </span>
+    </div>
     <h1>
-     3D BATTLE ROYALE
+     LAST
+     <span>
+      STAND
+     </span>
     </h1>
     <p class="sub">
-     LAST ONE STANDING WINS
+     Deploy into the city. Gear up. Be the last operator alive.
     </p>
+    <div class="briefing-cards">
+     <div>
+      <strong>
+       12
+      </strong>
+      <span>
+       HOSTILES
+      </span>
+     </div>
+     <div>
+      <strong>
+       01
+      </strong>
+      <span>
+       SAFE ZONE
+      </span>
+     </div>
+     <div>
+      <strong>
+       30
+      </strong>
+      <span>
+       ROUNDS / MAG
+      </span>
+     </div>
+    </div>
     <div class="controls">
      <span>
-      WASD
+      W A S D
      </span>
      <span>
       Move
      </span>
      <span>
-      Mouse
+      MOUSE
      </span>
      <span>
-      Aim
+      Aim / look
      </span>
      <span>
-      Click
+      HOLD CLICK
      </span>
      <span>
-      Fire
+      Fire rifle
      </span>
      <span>
-      Shift
+      SHIFT
      </span>
      <span>
       Sprint
@@ -148,14 +212,17 @@
       Reload
      </span>
      <span>
-      Esc
+      ESC
      </span>
      <span>
-      Pause / Unlock
+      Pause / unlock
      </span>
     </div>
+    <p class="menuTip">
+     Search the streets for glowing ammo and medkit supplies. Stay inside the closing zone.
+    </p>
     <button id="start">
-     START GAME
+     DEPLOY TO ARENA
     </button>
    </div>
   </div>

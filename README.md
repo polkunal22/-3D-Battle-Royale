@@ -21,7 +21,7 @@ No package installation or build step is required.
 
 - **W / A / S / D** - Move
 - **Mouse** - Aim
-- **Left click** - Fire
+- **Hold left click** - Fire the rifle
 - **Shift** - Sprint
 - **R** - Reload
 - **Esc** - Pause or release the mouse
@@ -34,6 +34,7 @@ Click **Start Game** to begin. Eliminate the other players and stay inside the s
 - Third-person player character with tactical gear and a visible rifle
 - Health, ammunition, kill count, enemy count, and zone HUD
 - Minimap, hit marker, kill feed, and damage indicator
+- Searchable ammo crates and medkits
 - Shrinking safe zone and enemy attacks
 - Browser-generated sound effects
 

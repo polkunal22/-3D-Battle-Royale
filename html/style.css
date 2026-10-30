@@ -98,3 +98,67 @@ button:active{transform:translateY(0)}
 .weaponHud__meter{height:3px;margin-top:12px;overflow:hidden;border-radius:4px;background:rgba(255,255,255,.12)}
 .weaponHud__meter span{display:block;width:100%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ffd166,#ff8c42);transition:width .15s}
 @media(max-width:600px){#weaponHud{right:12px;bottom:12px;width:190px;padding:11px 12px}.weaponHud__ammo strong{font-size:28px}}
+
+
+/* ---------- Polished match presentation ---------- */
+#screen{
+  overflow-y:auto;
+  padding:24px 16px;
+  background:radial-gradient(ellipse at 50% 38%,rgba(33,66,91,.84),rgba(6,12,19,.94) 72%),
+    linear-gradient(135deg,#172b3d,#080d13);
+  backdrop-filter:blur(3px);
+}
+.panel{
+  width:min(560px,94vw);
+  max-width:none;
+  padding:34px 42px 32px;
+  border:1px solid rgba(199,220,236,.16);
+  border-radius:20px;
+  background:linear-gradient(145deg,rgba(19,29,39,.97),rgba(10,16,23,.96));
+  box-shadow:0 28px 90px rgba(0,0,0,.55),inset 0 1px rgba(255,255,255,.06);
+  animation:panel-enter .45s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes panel-enter{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.panel__eyebrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;color:#91a3b3;
+  font-size:10px;font-weight:700;letter-spacing:1.5px}
+.live-dot{display:inline-flex;align-items:center;gap:8px;color:#9de6b1}
+.live-dot::before{width:7px;height:7px;border-radius:50%;background:#67db8a;box-shadow:0 0 12px #67db8a;content:""}
+.panel h1{margin:0;font-size:clamp(38px,8vw,58px);line-height:1;letter-spacing:2px}
+.panel h1 span{color:#fff;background:none;-webkit-text-fill-color:#fff}
+.panel .sub{margin:12px 0 22px;color:#aab8c5;font-size:14px;letter-spacing:.2px}
+.briefing-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 22px}
+.briefing-cards div{display:flex;flex-direction:column;gap:4px;padding:12px 8px;border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;background:rgba(255,255,255,.035)}
+.briefing-cards strong{color:#f4c86b;font-size:20px;font-variant-numeric:tabular-nums}
+.briefing-cards span{color:#8e9eac;font-size:9px;font-weight:700;letter-spacing:1.1px}
+.controls{max-width:100%;gap:0 20px;margin:0 0 14px;padding:8px 14px;border:1px solid rgba(255,255,255,.07);
+  border-radius:10px;background:rgba(0,0,0,.14);font-size:12px}
+.controls span{padding:6px 0;color:#aebbc6}
+.controls span:nth-child(odd){color:#f4c86b;font-size:10px;font-weight:700;letter-spacing:.7px}
+.menuTip{margin:0 auto 22px;max-width:410px;color:#8293a1;font-size:11px;line-height:1.6}
+#start,#again{min-width:230px;padding:14px 28px;border-radius:9px;background:linear-gradient(100deg,#f6c96d,#e99748);
+  color:#23190d;font-size:13px;font-weight:800;letter-spacing:1.3px;box-shadow:0 8px 28px rgba(225,150,65,.2)}
+#start:hover,#again:hover{box-shadow:0 10px 32px rgba(225,150,65,.38)}
+#resultStats{gap:12px}
+#resultStats div{min-width:90px;padding:12px 8px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.035)}
+#resultStats b{color:#f4c86b;font-size:25px}
+#toast{position:fixed;top:78px;left:50%;z-index:4;transform:translate(-50%,-8px);padding:10px 18px;
+  border:1px solid rgba(255,209,102,.24);border-radius:9px;background:rgba(13,20,27,.88);color:#ffe2a1;
+  font-size:11px;font-weight:800;letter-spacing:1px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;backdrop-filter:blur(8px)}
+#toast.is-visible{transform:translate(-50%,0);opacity:1}
+#hud .lo{font-size:10px;font-weight:700;letter-spacing:1.8px}
+#hud .stat{padding:2px 0;font-size:13px}
+#hpBar.is-low>div{background:linear-gradient(90deg,#ff6262,#cf3030)}
+#weaponHud.is-low{border-color:rgba(255,91,91,.5);box-shadow:0 0 24px rgba(255,55,55,.18)}
+#weaponHud.is-low .weaponHud__ammo strong{color:#ff7777}
+@media(max-width:600px){
+  .panel{padding:26px 20px 22px}
+  .panel__eyebrow{font-size:8px}
+  .controls{gap:0 10px}
+  .controls span{font-size:11px}
+  #resultStats{gap:6px}
+  #resultStats div{min-width:0;flex:1;font-size:10px}
+  #minimap{width:120px;height:120px}
+  #hud{min-width:170px;padding:10px 12px}
+  #zoneInfo{top:138px;padding:7px 10px;font-size:10px}
+}
