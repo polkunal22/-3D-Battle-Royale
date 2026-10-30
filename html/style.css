@@ -1,0 +1,100 @@
+*{box-sizing:border-box;user-select:none}
+body{margin:0;overflow:hidden;font-family:'Segoe UI',Arial,sans-serif;background:#0b0f14;color:#fff}
+
+/* ---------- HUD ---------- */
+#hud{position:fixed;top:14px;left:14px;background:rgba(10,14,20,.72);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.08);padding:14px 18px;border-radius:12px;z-index:2;
+  min-width:210px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.bar{height:10px;background:rgba(255,255,255,.12);border-radius:99px;margin:4px 0 10px;overflow:hidden}
+.bar>div{height:100%;border-radius:99px;transition:width .15s}
+#hpBar>div{background:linear-gradient(90deg,#2ecc71,#27ae60);width:100%}
+#ammoBar>div{background:linear-gradient(90deg,#f39c12,#e67e22);width:100%}
+.stat{font-size:14px;display:flex;justify-content:space-between;letter-spacing:.4px}
+.stat b{font-weight:600}
+.stat .val{color:#ffd166;font-weight:700}
+.hp-val{color:#7ee787!important}
+.lo{font-size:11px;color:#8b98a5;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:2px}
+
+/* ---------- Crosshair ---------- */
+#cross{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:3}
+#cross .dot{width:5px;height:5px;background:#fff;border-radius:50%;box-shadow:0 0 4px #000;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+#cross .ln{position:absolute;background:rgba(255,255,255,.85);box-shadow:0 0 3px #000}
+#cross .t{width:2px;height:9px;left:50%;top:calc(50% - 17px);transform:translateX(-50%)}
+#cross .b{width:2px;height:9px;left:50%;top:calc(50% + 8px);transform:translateX(-50%)}
+#cross .l{width:9px;height:2px;top:50%;left:calc(50% - 17px);transform:translateY(-50%)}
+#cross .r{width:9px;height:2px;top:50%;left:calc(50% + 8px);transform:translateY(-50%)}
+#hitmark{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:26px;color:#ff5252;
+  font-weight:bold;opacity:0;text-shadow:0 0 6px #000;transition:opacity .25s}
+
+/* ---------- Zone / minimap ---------- */
+#zoneInfo{position:fixed;top:14px;left:50%;transform:translateX(-50%);text-align:center;z-index:2;
+  background:rgba(10,14,20,.72);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.08);
+  padding:8px 20px;border-radius:10px;font-size:13px}
+#zoneInfo b{color:#00d9ff}
+#zoneTimer{color:#ffd166;font-weight:700}
+#minimap{position:fixed;top:14px;right:14px;width:160px;height:160px;border-radius:12px;z-index:2;
+  background:rgba(10,14,20,.72);border:1px solid rgba(255,255,255,.08)}
+
+/* ---------- Kill feed ---------- */
+#feed{position:fixed;right:14px;top:190px;z-index:2;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.feedItem{background:rgba(10,14,20,.75);border-left:3px solid #ff5252;padding:6px 12px;border-radius:6px;
+  font-size:13px;animation:slide .25s ease;transition:opacity .5s}
+@keyframes slide{from{transform:translateX(30px);opacity:0}}
+
+/* ---------- Damage vignette ---------- */
+#dmg{position:fixed;inset:0;pointer-events:none;z-index:2;opacity:0;
+  box-shadow:inset 0 0 140px rgba(220,30,.85);transition:opacity .3s}
+
+/* ---------- Overlays ---------- */
+#screen{position:fixed;inset:0;background:radial-gradient(circle at 50% 35%,#1d3a5f,#0b0f14 75%);
+  color:white;display:flex;align-items:center;justify-content:center;text-align:center;z-index:5}
+.panel{background:rgba(20,28,40,.92);border:1px solid rgba(255,255,255,.1);padding:40px 50px;border-radius:18px;
+  max-width:92%;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.panel h1{margin:0 0 6px;font-size:42px;letter-spacing:3px;
+  background:linear-gradient(90deg,#ffd166,#ff8c42);-webkit-background-clip:text;background-clip:text;color:transparent}
+.panel .sub{color:#8b98a5;margin-bottom:22px;font-size:14px;letter-spacing:1px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px 30px;margin:0 auto 26px;max-width:420px;
+  font-size:13.5px;text-align:left}
+.controls span:first-child{color:#ffd166;font-weight:600}
+button{background:linear-gradient(90deg,#ff8c42,#f39c12);border:0;border-radius:10px;padding:15px 44px;
+  font-weight:bold;font-size:18px;cursor:pointer;color:#231507;letter-spacing:1px;
+  box-shadow:0 6px 18px rgba(255,140,66,.35);transition:transform .12s,box-shadow .12s}
+button:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(255,140,66,.5)}
+button:active{transform:translateY(0)}
+#resultStats{display:flex;gap:34px;justify-content:center;margin:18px 0 26px}
+#resultStats div{font-size:13px;color:#8b98a5}
+#resultStats b{display:block;font-size:26px;color:#ffd166;margin-bottom:2px}
+#pausedTag{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:4;
+  font-size:34px;letter-spacing:6px;color:#fff;text-shadow:0 0 20px #000;background:rgba(0,0,0,.45)}
+
+
+/* ---------- Weapon and ammunition HUD ---------- */
+#weaponHud{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  z-index:2;
+  width:238px;
+  padding:14px 16px 12px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:14px;
+  color:#fff;
+  background:linear-gradient(145deg,rgba(13,20,30,.88),rgba(25,35,48,.78));
+  box-shadow:0 12px 32px rgba(0,0,0,.28);
+  backdrop-filter:blur(10px);
+}
+.weaponHud__top,.weaponHud__bottom{display:flex;align-items:center;justify-content:space-between}
+.weaponHud__label{color:#a9bacb;font-size:10px;font-weight:700;letter-spacing:1.5px}
+.weaponHud__key{color:#ffd166;font-size:11px;font-weight:800}
+.weaponHud__key span{margin-left:5px;color:#92a1b2;font-size:9px;font-weight:600;letter-spacing:.8px}
+.weaponHud__bottom{margin-top:8px}
+.weaponHud__icon{width:42px;height:32px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;color:#ffd166}
+.weaponHud__icon svg{width:34px;fill:currentColor}
+.weaponHud__ammo{display:flex;align-items:baseline;gap:7px}
+.weaponHud__ammo strong{font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.weaponHud__ammo span{color:#92a1b2;font-size:16px;font-variant-numeric:tabular-nums}
+.weaponHud__ammo b{color:#dce5ed;font-weight:600}
+.weaponHud__meter{height:3px;margin-top:12px;overflow:hidden;border-radius:4px;background:rgba(255,255,255,.12)}
+.weaponHud__meter span{display:block;width:100%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ffd166,#ff8c42);transition:width .15s}
+@media(max-width:600px){#weaponHud{right:12px;bottom:12px;width:190px;padding:11px 12px}.weaponHud__ammo strong{font-size:28px}}

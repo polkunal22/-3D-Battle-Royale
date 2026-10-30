@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <title>
+   3D Battle Royale
+  </title>
+  <link href="style.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <div id="hud">
+   <div class="lo">
+    Player
+   </div>
+   <div class="stat">
+    <span>
+     ❤️ Health
+    </span>
+    <span class="val hp-val" id="hp">
+     100
+    </span>
+   </div>
+   <div class="bar" id="hpBar">
+    <div>
+    </div>
+   </div>
+   <div class="stat">
+    <span>
+     🔫 Ammo
+    </span>
+    <span class="val" id="ammo">
+     30/30
+    </span>
+   </div>
+   <div class="bar" id="ammoBar">
+    <div>
+    </div>
+   </div>
+   <div class="stat">
+    <span>
+     🎯 Kills
+    </span>
+    <span class="val" id="kills">
+     0
+    </span>
+   </div>
+   <div class="stat">
+    <span>
+     👥 Enemies
+    </span>
+    <span class="val" id="left">
+     12
+    </span>
+   </div>
+   <div class="stat">
+    <span>
+     🌀 Zone
+    </span>
+    <span class="val" id="zone">
+     90m
+    </span>
+   </div>
+  </div>
+  <div id="zoneInfo">
+   ZONE SHRINKS IN
+   <span id="zoneTimer">
+    --
+   </span>
+   · RADIUS
+   <b id="zoneR">
+    90
+   </b>
+   m
+  </div>
+  <canvas height="160" id="minimap" width="160">
+  </canvas>
+  <div id="weaponHud" aria-label="Weapon and ammunition">
+   <div class="weaponHud__top">
+    <span class="weaponHud__label" id="weaponStatus">ASSAULT RIFLE</span>
+    <span class="weaponHud__key">R <span>RELOAD</span></span>
+   </div>
+   <div class="weaponHud__bottom">
+    <div class="weaponHud__icon" aria-hidden="true"><svg viewBox="0 0 48 32" focusable="false"><path d="M5 10h22l5 3h10v5H31l-5 4h-6v-4h-5v4H9v-7H5z"/></svg></div>
+    <div class="weaponHud__ammo"><strong id="ammoLarge">30</strong><span>/ <b id="ammoReserve">30</b></span></div>
+   </div>
+   <div class="weaponHud__meter"><span id="weaponMeter"></span></div>
+  </div>
+  <div id="feed">
+  </div>
+  <div id="dmg">
+  </div>
+  <div id="pausedTag">
+   PAUSED
+  </div>
+  <div id="cross">
+   <div class="ln t">
+   </div>
+   <div class="ln b">
+   </div>
+   <div class="ln l">
+   </div>
+   <div class="ln r">
+   </div>
+   <div class="dot">
+   </div>
+   <div id="hitmark">
+    ✕
+   </div>
+  </div>
+  <div id="screen">
+   <div class="panel">
+    <h1>
+     3D BATTLE ROYALE
+    </h1>
+    <p class="sub">
+     LAST ONE STANDING WINS
+    </p>
+    <div class="controls">
+     <span>
+      WASD
+     </span>
+     <span>
+      Move
+     </span>
+     <span>
+      Mouse
+     </span>
+     <span>
+      Aim
+     </span>
+     <span>
+      Click
+     </span>
+     <span>
+      Fire
+     </span>
+     <span>
+      Shift
+     </span>
+     <span>
+      Sprint
+     </span>
+     <span>
+      R
+     </span>
+     <span>
+      Reload
+     </span>
+     <span>
+      Esc
+     </span>
+     <span>
+      Pause / Unlock
+     </span>
+    </div>
+    <button id="start">
+     START GAME
+    </button>
+   </div>
+  </div>
+  <script src="game.js" type="module">
+  </script>
+ </body>
+</html>
+
